@@ -87,6 +87,7 @@ def make_sets():
     training_labels = []
     prediction_data = []
     prediction_labels = []
+
     for emotion in emotions:
         print('working on %s' % emotion)
         training, prediction = get_files(emotion)
