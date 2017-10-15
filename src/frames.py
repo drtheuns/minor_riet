@@ -2,7 +2,6 @@
 Common frame handling functionality
 """
 import math
-import time
 
 import cv2
 import dlib
