@@ -8,7 +8,6 @@ See also:
     http://www.paulvangent.com/2016/08/05/emotion-recognition-using-facial-landmarks/
 """
 import glob
-import itertools
 import math
 import random
 import os.path
@@ -21,7 +20,7 @@ from sklearn.svm import SVC
 
 
 # TODO: remove global variables
-emotions = ['anger', 'contempt', 'disgust', 'fear', 'happiness', 'neutral', 'sadness', 'surprise']
+emotions = ['anger', 'contempt', 'disgust', 'fear', 'happy', 'neutral', 'sadness', 'surprise']
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 clf = SVC(kernel='linear', probability=True, tol=1e-3)
 detector = dlib.get_frontal_face_detector()
@@ -32,6 +31,8 @@ data = {}
 
 def get_files(emotion):
     files = glob.glob('../data/dataset/%s/*' % emotion)
+    googleset = glob.glob('../data/googleset/%s/*' % emotion)
+    files = files + googleset
     random.shuffle(files)
     training = files[:int(len(files) * 0.8)]
     prediction = files[-int(len(files) * 0.2):]
@@ -45,7 +46,7 @@ def get_landmarks(image):
         xlist = []
         ylist = []
 
-        for i in range(1, 68):
+        for i in range(0, 68):
             xlist.append(float(shape.part(i).x))
             ylist.append(float(shape.part(i).y))
 
@@ -121,7 +122,7 @@ def make_model():
 
 def measure_accuracy():
     accur_lin = []
-    for i in range (0, 10):
+    for i in range(0, 10):
         print('Making sets %s' % i)
         training_data, training_labels, prediction_data, prediction_labels = make_sets()
 
@@ -146,6 +147,6 @@ def save_trained_model():
 
 
 if __name__ == '__main__':
-    # measure_accuracy()
+    measure_accuracy()
     save_trained_model()
 

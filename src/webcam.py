@@ -29,17 +29,31 @@ def get_predictor():
     def predict(landmarks):
         return model.predict(landmarks)
 
-    return predict
+    def predict_proba(landmarks):
+        return model.predict_proba(landmarks)
+
+    return predict, predict_proba
 
 
 def predict_from_webcam():
-    predict = get_predictor()
+    emotions = ['anger', 'contempt', 'disgust', 'fear',
+            'happy', 'neutral', 'sadness', 'surprise']
+    predict, predict_proba = get_predictor()
     for x in get_webcam_video():
         frame = FrameHandler(x) 
-        frame.draw_points()
+        # frame.draw_points()
 
-        predictions = [predict([np.array(x)]) for x in frame.get_vectorized_landmarks()]
-        print(predictions)
+        faces = np.array(frame.get_vectorized_landmarks())
+
+        if faces.any():
+            prediction = predict(faces)
+            print(predict_proba(faces))
+            for i, det in enumerate(frame.detections):
+                x = det.left()
+                y = det.top()
+                cv2.putText(frame.frame, emotions[prediction[i]], (x, y),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
+            # print(prediction)
 
         cv2.imshow('image', frame.frame)
 
