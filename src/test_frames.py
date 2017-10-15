@@ -11,6 +11,7 @@ def test_webcam_faces_get_resized():
     The requirements are:
         - Correct amount of faces recognized
         - Each resized image has the right size (350x350 at the moment)
+        - In an image with no faces, it should return an empty list
     """
     frame = frames.ImageHandler('../data/test/webcam_face.jpg')
 

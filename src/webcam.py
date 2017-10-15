@@ -13,6 +13,8 @@ from frames import FrameHandler
 
 def get_webcam_video():
     vc = cv2.VideoCapture(0)
+    # vc.set(3, 1280)
+    # vc.set(4, 720)
     while True:
         ret, frame = vc.read()
 
@@ -46,14 +48,11 @@ def predict_from_webcam():
         faces = np.array(frame.get_vectorized_landmarks())
 
         if faces.any():
-            prediction = predict(faces)
-            print(predict_proba(faces))
-            for i, det in enumerate(frame.detections):
-                x = det.left()
-                y = det.top()
-                cv2.putText(frame.frame, emotions[prediction[i]], (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
-            # print(prediction)
+            predictions = predict(faces)
+            text = ''.join(['{}: {}'.format(i, emotions[predictions[i]])
+                            for i, x in enumerate(predictions)])
+            cv2.putText(frame.frame, text, (40, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
 
         cv2.imshow('image', frame.frame)
 
