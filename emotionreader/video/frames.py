@@ -103,6 +103,9 @@ class FrameHandler(object):
         return landmarks_vectorised
 
     def draw_landmarks(self, thickness=1):
+        # Can't draw that which doesn't exist.
+        if self.detections is None:
+            return
         shape = self.predictor(self.clahe_image, self.detection)
         for i in range(68):
             cv2.circle(self.frame, (shape.part(i).x, shape.part(i).y),
