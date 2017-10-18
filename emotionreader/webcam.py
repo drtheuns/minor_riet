@@ -11,10 +11,50 @@ import numpy as np
 from frames import FrameHandler
 
 
-def get_webcam_video():
+def record(filename, seconds, **kwargs):
+    """Records a video and saves it to a file
+
+    Args:
+        filename: the filepath to save the video to
+        seconds: The amount of seconds to record.
+    Kwargs:
+        fourcc: The video codec to use. An exhaustive list is available on
+            http://www.fourcc.org/codecs.php. Note that some might be
+            platform dependant. Defaults to XVID
+        frame_size: The width and height of the video. Defaults to (640, 480)
+        fps: The amount of frames per second. Defaults to 10.0
+    
+    Returns:
+        frame_count (int): The amount of frames that were recorded.
+    """
+    cap = cv2.VideoCapture(0)
+
+    fourcc = kwargs.get('fourcc', ('X', 'V', 'I', 'D'))
+    frame_size = kwargs.get('size', (640, 480))
+    fps = kwargs.get('fps', 15)
+    codec = cv2.cv.CV_FOURCC(*fourcc)
+
+    cap.set(cv2.cv.CV_CAP_PROP_FPS, fps)
+    out = cv2.VideoWriter(filename, codec, fps, frame_size)
+
+    total_frames = int(fps * seconds)
+    frame_count = 0
+    while (cap.isOpened() and frame_count < total_frames):
+        ret, frame = cap.read()
+        if ret:
+            out.write(frame)
+            frame_count += 1
+        else:
+            break
+
+    return frame_count  
+
+
+def get_webcam_video(width, height):
     vc = cv2.VideoCapture(0)
-    # vc.set(3, 1280)
-    # vc.set(4, 720)
+    vc.set(3, width)
+    vc.set(4, height)
+
     while True:
         ret, frame = vc.read()
 
@@ -24,42 +64,31 @@ def get_webcam_video():
         yield frame
 
 
-def get_predictor():
-    with open('../models/trained_svm_model', 'r') as f:
-        model = pickle.load(f)
-
-    def predict(landmarks):
-        return model.predict(landmarks)
-
-    def predict_proba(landmarks):
-        return model.predict_proba(landmarks)
-
-    return predict, predict_proba
-
-
-def predict_from_webcam():
+def predict_from_webcam(args):
     emotions = ['anger', 'contempt', 'disgust', 'fear',
             'happy', 'neutral', 'sadness', 'surprise']
-    predict, predict_proba = get_predictor()
-    for x in get_webcam_video():
-        frame = FrameHandler(x) 
-        # frame.draw_points()
+    
+    with open('models/trained_svm_model') as f:
+        model = pickle.load(f)
 
-        faces = np.array(frame.get_vectorized_landmarks())
+    width, height = args.dimensions
+    for frame in get_webcam_video(width, height):
+        handler = FrameHandler(frame) 
+
+        if args.landmarks:
+            handler.draw_points()
+
+        faces = np.array(handler.get_vectorized_landmarks())
 
         if faces.any():
-            predictions = predict(faces)
-            text = ''.join(['{}: {}'.format(i, emotions[predictions[i]])
+            predictions = model.predict(faces)
+            text = ''.join(['{}: {} '.format(i, emotions[predictions[i]])
                             for i, x in enumerate(predictions)])
-            cv2.putText(frame.frame, text, (40, 40),
+            cv2.putText(handler.frame, text, (40, 40),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
 
-        cv2.imshow('image', frame.frame)
+        cv2.imshow('image', handler.frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-
-if __name__ == '__main__':
-    predict_from_webcam()
+            break    
 

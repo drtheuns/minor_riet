@@ -1,5 +1,6 @@
 """An open-source emotion detection system built for the minor
-Research in Emerging Technologies at the University of Applied Sciences.
+Research in Emerging Technologies at the University of Applied Sciences
+Amsterdam.
 """
 
 __author__ = "Randall Theuns"

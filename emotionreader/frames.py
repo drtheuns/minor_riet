@@ -25,19 +25,19 @@ class FrameHandler(object):
         sub_detections: Re-checked detections of each resized face frame.
     """
 
-    predictor = dlib.shape_predictor('../models/shape_predictor_68_face_landmarks.dat')
+    predictor = dlib.shape_predictor('models/shape_predictor_68_face_landmarks.dat')
     detector = dlib.get_frontal_face_detector()
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
 
     def __init__(self, frame):
         self.frame = frame
-        self.gray = self._as_grayscale()
-        self.clahe_image = self.clahe.apply(self.gray)
+        gray = self._as_grayscale()
+        self.clahe_image = self.clahe.apply(gray)
         self.detections = self.detector(self.clahe_image, 1)
         self.sub_detections = []
 
         if self.detections:
-            self._resize_to_face()
+            self.faces = self._resize_to_face(gray)
 
             for face in self.faces:
                 det_faces = self.detector(face, 1)
@@ -64,7 +64,7 @@ class FrameHandler(object):
         h = rect.bottom() - y
         return (x, y, w, h)
 
-    def _resize_to_face(self):
+    def _resize_to_face(self, gray):
         """Creates 350x350 frames of each face in the image.
         
         The prediction model needs to have data of faces in the same
@@ -75,14 +75,15 @@ class FrameHandler(object):
         Results are stored in self.faces
         """
         # make sure that if the method is called again, we don't get doubles.
-        self.faces = []
+        faces = []
         for face in self.detections:
             x, y, w, h = self._rect_to_bb(face)
             # cut the grayscales original frame to size
-            cut = self.gray[y:y+h, x:x+w]
+            cut = gray[y:y+h, x:x+w]
             resized = cv2.resize(cut, (350, 350))
             resized = self.clahe.apply(resized)
-            self.faces.append(resized)
+            faces.append(resized)
+        return faces
 
     def draw_points(self, thickness=1):
         """Draw the facial landmarks on the original frame."""
@@ -130,8 +131,8 @@ class FrameHandler(object):
             
             result.append(landmarks_vectorised)
         return result
+       
 
-        
 class ImageHandler(FrameHandler):
     """Handles an image from a filepath.
 
