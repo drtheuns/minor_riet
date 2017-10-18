@@ -1,6 +1,6 @@
 import unittest
 
-from emotionreader import frames
+from emotionreader.video import frames
 
 
 class TestFrameHandler(unittest.TestCase):
@@ -15,11 +15,8 @@ class TestFrameHandler(unittest.TestCase):
     """
 
     def setUp(self):
-        self.handler = frames.ImageHandler('data/test/webcam_face.jpg')
+        self.handler = frames.ImageHandler('data/test/face.jpg')
 
-    def test_has_correct_amount(self):
-        self.assertEqual(len(self.handler.faces), 1)
-        
     def test_correct_resize(self):
         pass
 

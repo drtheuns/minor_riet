@@ -4,7 +4,7 @@ import tempfile
 import os
 import subprocess
 
-from emotionreader.webcam import record
+from emotionreader.video import record
 
 
 class TestRecordVideo(unittest.TestCase):

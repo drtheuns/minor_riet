@@ -76,16 +76,15 @@ def predict_from_webcam(args):
         handler = FrameHandler(frame) 
 
         if args.landmarks:
-            handler.draw_points()
+            handler.draw_landmarks()
 
-        faces = np.array(handler.get_vectorized_landmarks())
-
-        if faces.any():
-            predictions = model.predict(faces)
-            text = ''.join(['{}: {} '.format(i, emotions[predictions[i]])
-                            for i, x in enumerate(predictions)])
-            cv2.putText(handler.frame, text, (40, 40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
+        faces = np.array([handler.get_vectorized_landmarks()])
+        if faces[0] is not None:
+            prediction = model.predict(faces)
+            if len(prediction) > 0:
+                text = emotions[prediction[0]]
+                cv2.putText(handler.frame, text, (40, 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
 
         cv2.imshow('image', handler.frame)
 

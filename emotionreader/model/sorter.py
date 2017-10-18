@@ -37,7 +37,7 @@ def handle_file(filepath, session):
         copyfile(src_neutral, dest_neutral)
         copyfile(src_emotion, dest_emotion)
 
-def sort_ck():
+def sort_ck(args):
     #Returns a list of all folders with participant numbers
     participants = sorted_glob('data/source_emotions/*')
 

@@ -11,8 +11,8 @@ import argparse
 
 import emotionreader
 from emotionreader.misc import parse_actions
-from emotionreader.webcam import predict_from_webcam
-from emotionreader.sorter import sort_ck
+from emotionreader.video import predict_from_webcam
+from emotionreader.model import sort_ck, prepare_dataset, train_model
 
 
 def get_parser():
@@ -28,8 +28,15 @@ def get_parser():
     parser_sort.set_defaults(func=sort_ck)
 
     # Subcommand for preparing the dataset.
-    # parser_dataset = subparsers.add_parser('prepare-dataset', help='prepare',
-            # 'the dataset by detecting faces and cutting them to size')
+    parser_dataset = subparsers.add_parser('prepare-dataset', help='prepare '
+            'the dataset by detecting faces and cutting them to size')
+    parser_dataset.set_defaults(func=prepare_dataset)
+
+    # Subcommand for training the model
+    parser_train = subparsers.add_parser('train', help='train the model')
+    parser_train.add_argument('-m', '--measure', dest='measure',
+            action='store_true', help='test accuracy of the model')
+    parser_train.set_defaults(func=train_model)
     
     # Subcommand for starting emotion detection from the webcam
     parser_webcam = subparsers.add_parser('webcam', help='start real time'
