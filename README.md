@@ -67,8 +67,45 @@ ln -s /path/to/opencv/build/lib/cv2.so /path/to/virtualenv/lib/python2.7/cv2.so
 ```
 Open a new Python interpreter session, and try `import cv2` again.
 
+## Usage
+
+Once all the above requirements are met, you can try it out. Some functionality, such as sorting and preparing of the dataset, requires there to be a dataset. We used the Cohn-Kanade extended (CK+) dataset.
+
+Example usage:
+```bash
+$ python -m emotionreader --help
+usage: emotionreader [-h] [-V] {sort,prepare-dataset,train,webcam} ...
+
+An open-source emotion detection system built for the minor Research in
+Emerging Technologies at the University of Applied Sciences Amsterdam.
+
+positional arguments:
+  {sort,prepare-dataset,train,webcam}     the action to perform
+    sort                sort the CK+ dataset
+    prepare-dataset     prepare the dataset by detecting faces and cutting
+                        them to size
+    train               train the model
+    webcam              start real timedetection from the command line
+optional arguments:
+    -h, --help          show this help message and exit
+    -V, --version       show program's version number and exit
+```
+
+Each action also has a help function. For example:
+```bash
+$ python -m emotionreader webcam --help
+usage: emotionreader webcam [-h] [-d DIMENSIONS] [-l]
+
+optional arguments:
+    -h, --help          show this help message and exit
+    -d DIMENSIONS, --dimensions DIMENSIONS
+                        the width and height to start the webcam with
+    -l, --landmarks     draw the facial landmarks on the frame
+```
+
 # Citations
 
 - van Gent, P. (2016). Emotion Recognition Using Facial Landmarks, Python, DLib and OpenCV. A tech blog about fun things with Python and embedded electronics. Retrieved from: http://www.paulvangent.com/2016/08/05/emotion-recognition-using-facial-landmarks/
-
+- Kanade, T., Cohn, J. F., & Tian, Y. (2000). Comprehensive database for facial expression analysis. Proceedings of the Fourth IEEE International Conference on Automatic Face and Gesture Recognition (FG'00), Grenoble, France, 46-53.
+- Lucey, P., Cohn, J. F., Kanade, T., Saragih, J., Ambadar, Z., & Matthews, I. (2010). The Extended Cohn-Kanade Dataset (CK+): A complete expression dataset for action unit and emotion-specified expression. Proceedings of the Third International Workshop on CVPR for Human Communicative Behavior Analysis (CVPR4HB 2010), San Francisco, USA, 94-101.
 
