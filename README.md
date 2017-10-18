@@ -30,7 +30,7 @@ A lot of what is described here, can be read back in more detail on Paul van Gen
 
 You might want to use a virtualenvironment when setting up everything below.
 
-Building Dlib is fairly straightforward. You can read the details on this on Paul van Gent's blog, or you can google it. It basically requires the C++ Boost library to be build, and then you can build Dlib and install it for Python. If everything installed correctly, but you still get an `ImportError` when importing dlib, running `sudo ldconfig`. 
+Building Dlib is fairly straightforward. You can read the details on this on Paul van Gent's blog, or you can google it. It basically requires the C++ Boost library to be build, and then you can build Dlib and install it for Python. If everything installed correctly, but you still get an `ImportError` when importing dlib, running `sudo ldconfig` might solve this. 
 
 SKlearn will already be installed if you're using [Anaconda](https://www.anaconda.com/). If not, `pip install sklearn` will do the trick. `pip install numpy` is sufficient for numpy as well.
 
@@ -43,10 +43,10 @@ cd ffmpeg-<version>
 make
 sudo make install
 ```
-*Warning* This will override any version of `ffmpeg` you might already have installed. Any software that relied on `ffmpeg` might break as a cause of this (ex. `mpv`).
+**Warning** This will override any version of `ffmpeg` you might already have installed. Any software that relied on `ffmpeg` might break as a cause of this (ex. `mpv`).
 - You might need to run `cmake` with `-D ENABLED_PRECOMPILED_HEADER=OFF` (see also [this github issue](https://github.com/opencv/opencv/issues/8878))
 
-What worked for eventually:
+What worked for us eventually:
 
 - Build `ffmpeg` from source.
 - Next use `CMake`:
@@ -59,7 +59,7 @@ cmake -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_
 - Check the output of `CMake` to ensure there is `ffmpeg` support.
 - Make and make install: `make && make install`
 
-Once the build is successful, check in a Python interpreter that you can do `import cv2`. If this is not the case, you might need to manually copy or symlink `cv2.so` to your `python2.7/lib` folder:
+Once the build is successful, check in a Python interpreter session that you can do `import cv2`. If this is not the case, you might need to manually copy or symlink `cv2.so` to your `python2.7/lib` folder:
 ```bash
 cp /path/to/opencv/build/lib/cv2.so /path/to/virtualenv/lib/python2.7/cv2.so
 OR to symlink:
