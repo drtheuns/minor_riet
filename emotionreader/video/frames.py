@@ -35,7 +35,8 @@ class FrameHandler(object):
 
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor('models/shape_predictor_68_face_landmarks.dat')
+    predictor = dlib.shape_predictor(
+        'models/shape_predictor_68_face_landmarks.dat')
 
     def __init__(self, frame):
         self.frame = frame
@@ -44,7 +45,7 @@ class FrameHandler(object):
 
     def _resize_face(self, rect):
         """Resize the given face to 350x350 (same as dataset)
-        
+
         Args:
             rect: The rectangle of the face. This is the area of the frame
                   that will be cut from the frame.
@@ -64,17 +65,17 @@ class FrameHandler(object):
 
     def get_vectorized_landmarks(self, resized=True):
         """Get the vectorized landmarks of the frame.
-        
+
         Args:
             resized (bool): If true, gets the landmarks from the resized
                             frames, otherwise, use the original frame.
         """
         if resized:
             frame = self.resized_frame
-            rect  = self.resized_detection
+            rect = self.resized_detection
         else:
             frame = self.clahe_image
-            rect  = self.detection
+            rect = self.detection
 
         if rect is None:
             return None
@@ -85,7 +86,7 @@ class FrameHandler(object):
         for i in range(68):
             xlist.append(float(shape.part(i).x))
             ylist.append(float(shape.part(i).y))
-        
+
         xmean = np.mean(xlist)
         ymean = np.mean(ylist)
         xcentral = [(x - xmean) for x in xlist]
@@ -99,7 +100,8 @@ class FrameHandler(object):
             coornp = np.asarray((z, w))
             dist = np.linalg.norm(coornp - meannp)
             landmarks_vectorised.append(dist)
-            landmarks_vectorised.append(int(math.atan((y-ymean) / (x-xmean)) * 360/math.pi))
+            landmarks_vectorised.append(
+                int(math.atan((y-ymean) / (x-xmean)) * 360/math.pi))
         return landmarks_vectorised
 
     def draw_landmarks(self, thickness=1):
@@ -109,7 +111,7 @@ class FrameHandler(object):
         shape = self.predictor(self.clahe_image, self.detection)
         for i in range(68):
             cv2.circle(self.frame, (shape.part(i).x, shape.part(i).y),
-                    1, (0, 0, 255), thickness=thickness)
+                       1, (0, 0, 255), thickness=thickness)
 
     @property
     def detection(self):

@@ -17,7 +17,8 @@ from sklearn.svm import SVC
 from emotionreader.video import ImageHandler
 
 
-emotions = ['anger', 'contempt', 'disgust', 'fear', 'happy', 'neutral', 'sadness', 'surprise']
+emotions = ['anger', 'contempt', 'disgust', 'fear',
+            'happy', 'neutral', 'sadness', 'surprise']
 
 
 def get_files(emotion):
@@ -50,15 +51,18 @@ def make_sets():
     for index, emotion in enumerate(emotions):
         print('working on %s' % emotion)
         training, prediction = get_files(emotion)
-        _handle_subset(emotion, index, training, training_data, training_labels)
-        _handle_subset(emotion, index, prediction, prediction_data, prediction_labels)
-        
+        _handle_subset(emotion, index, training,
+                       training_data, training_labels)
+        _handle_subset(emotion, index, prediction,
+                       prediction_data, prediction_labels)
+
     return training_data, training_labels, prediction_data, prediction_labels
 
 
 def make_model():
     model = SVC(kernel='linear', probability=True, tol=1e-3)
-    training_data, training_labels, prediction_data, prediction_labels = make_sets()
+    (training_data, training_labels,
+     prediction_data, prediction_labels) = make_sets()
     npar_train = np.array(training_data)
     model.fit(npar_train, training_labels)
     return model
@@ -69,10 +73,10 @@ def measure_accuracy():
     accur_lin = []
     for i in range(0, 10):
         print('Making sets %s' % i)
-        training_data, training_labels, prediction_data, prediction_labels = make_sets()
+        (training_data, training_labels,
+         prediction_data, prediction_labels) = make_sets()
 
         npar_train = np.array(training_data)
-        npar_trainlabs = np.array(training_labels)
         print('training SVM linear %s' % i)
         clf.fit(npar_train, training_labels)
 
@@ -96,4 +100,3 @@ def train_model(args):
         measure_accuracy()
     else:
         save_trained_model()
-

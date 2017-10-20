@@ -16,6 +16,6 @@ class DimensionAction(Action):
         match = re.search(r'(\d{3,4})[xX](\d{3,4})', values)
         if not match:
             raise ValueError('invalid dimensions. expected format WIDTHxHEIGHT'
-                    'but got {}'.format(values))
+                             'but got {}'.format(values))
         width, height = int(match.group(1)), int(match.group(2))
         setattr(namespace, self.dest, (width, height))

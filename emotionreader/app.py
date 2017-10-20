@@ -17,10 +17,10 @@ from emotionreader.model import sort_ck, prepare_dataset, train_model
 
 def get_parser():
     parser = argparse.ArgumentParser(prog='emotionreader',
-            description=emotionreader.__description__)
+                                     description=emotionreader.__description__)
     parser.add_argument('-V', '--version', action='version',
-            version=emotionreader.__version__)
-    
+                        version=emotionreader.__version__)
+
     subparsers = parser.add_subparsers(help='the action to perform')
 
     # Subcommand for sorting the dataset
@@ -29,23 +29,27 @@ def get_parser():
 
     # Subcommand for preparing the dataset.
     parser_dataset = subparsers.add_parser('prepare-dataset', help='prepare '
-            'the dataset by detecting faces and cutting them to size')
+                                           'the dataset by detecting faces and'
+                                           'cutting them to size')
     parser_dataset.set_defaults(func=prepare_dataset)
 
     # Subcommand for training the model
     parser_train = subparsers.add_parser('train', help='train the model')
     parser_train.add_argument('-m', '--measure', dest='measure',
-            action='store_true', help='test accuracy of the model')
+                              action='store_true',
+                              help='test accuracy of the model')
     parser_train.set_defaults(func=train_model)
-    
+
     # Subcommand for starting emotion detection from the webcam
     parser_webcam = subparsers.add_parser('webcam', help='start real time'
-            'detection from the command line')
+                                          'detection from the command line')
     parser_webcam.add_argument('-d', '--dimensions', dest='dimensions',
-            action=parse_actions.DimensionAction, default=(640, 480),
-            help='the width and height to start the webcam with')
+                               action=parse_actions.DimensionAction,
+                               default=(640, 480), help='the width and height '
+                               'to start the webcam with')
     parser_webcam.add_argument('-l', '--landmarks', dest='landmarks',
-            action='store_true', help='draw the facial landmarks on the frame')
+                               action='store_true',
+                               help='draw the facial landmarks on the frame')
     parser_webcam.set_defaults(func=predict_from_webcam)
 
     return parser
@@ -55,4 +59,3 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     args.func(args)
-

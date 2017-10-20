@@ -5,7 +5,6 @@ read them all one by one.
 import pickle
 
 import cv2
-import dlib
 import numpy as np
 
 from frames import FrameHandler
@@ -23,7 +22,7 @@ def record(filename, seconds, **kwargs):
             platform dependant. Defaults to XVID
         frame_size: The width and height of the video. Defaults to (640, 480)
         fps: The amount of frames per second. Defaults to 10.0
-    
+
     Returns:
         frame_count (int): The amount of frames that were recorded.
     """
@@ -47,7 +46,7 @@ def record(filename, seconds, **kwargs):
         else:
             break
 
-    return frame_count  
+    return frame_count
 
 
 def get_webcam_video(width, height):
@@ -66,14 +65,14 @@ def get_webcam_video(width, height):
 
 def predict_from_webcam(args):
     emotions = ['anger', 'contempt', 'disgust', 'fear',
-            'happy', 'neutral', 'sadness', 'surprise']
-    
+                'happy', 'neutral', 'sadness', 'surprise']
+
     with open('models/trained_svm_model') as f:
         model = pickle.load(f)
 
     width, height = args.dimensions
     for frame in get_webcam_video(width, height):
-        handler = FrameHandler(frame) 
+        handler = FrameHandler(frame)
 
         if args.landmarks:
             handler.draw_landmarks()
@@ -84,10 +83,10 @@ def predict_from_webcam(args):
             if len(prediction) > 0:
                 text = emotions[prediction[0]]
                 cv2.putText(handler.frame, text, (40, 40),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), thickness=2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255),
+                            thickness=2)
 
         cv2.imshow('image', handler.frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break    
-
+            break

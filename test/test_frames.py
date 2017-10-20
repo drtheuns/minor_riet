@@ -6,8 +6,10 @@ from emotionreader.video import frames
 class TestFrameHandler(unittest.TestCase):
     """Test that the FrameHandler class is able to resize all faces in a frame.
 
-    For now this is done graphically (the result is shown on screen, but the programmer)
-    has to check the result himself. This should be changed to something automatic.
+    For now this is done graphically (the result is shown on screen,
+    but the programmer has to check the result himself.
+    This should be changed to something automatic.
+
     The requirements are:
         - Correct amount of faces recognized
         - Each resized image has the right size (350x350 at the moment)
@@ -19,4 +21,3 @@ class TestFrameHandler(unittest.TestCase):
 
     def test_correct_resize(self):
         pass
-
