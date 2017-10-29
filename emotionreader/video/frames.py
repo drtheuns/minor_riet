@@ -2,10 +2,38 @@
 Common frame handling functionality
 """
 import math
+import pickle
 
 import cv2
 import dlib
 import numpy as np
+
+
+def predict_video(path):
+    print(path)
+    with open('models/trained_svm_model', 'rb') as f:
+        model = pickle.load(f)
+
+    vc = cv2.VideoCapture()
+    vc.open(path)
+    f_predictions = []
+    f_count = 0
+    while vc.isOpened():
+        f_count += 1
+        print(f_count)
+        ret, frame = vc.read()
+        handler = FrameHandler(frame)
+        face = np.array(handler.get_vectorized_landmarks())
+
+        if face is None:
+            continue
+
+        f_predictions.append(model.predict_proba(face))
+    print(f_predictions)
+
+
+def predict_from_video(args):
+    predict_video(args.path)
 
 
 class FrameHandler(object):
@@ -100,8 +128,7 @@ class FrameHandler(object):
             coornp = np.asarray((z, w))
             dist = np.linalg.norm(coornp - meannp)
             landmarks_vectorised.append(dist)
-            landmarks_vectorised.append(
-                int(math.atan((y-ymean) / (x-xmean)) * 360/math.pi))
+            landmarks_vectorised.append((math.atan2(y, x)*360)/(2*math.pi))
         return landmarks_vectorised
 
     def draw_landmarks(self, thickness=1):

@@ -11,7 +11,7 @@ import argparse
 
 import emotionreader
 from emotionreader.misc import parse_actions
-from emotionreader.video import predict_from_webcam
+from emotionreader.video import predict_from_webcam, predict_from_video
 from emotionreader.model import sort_ck, prepare_dataset, train_model
 
 
@@ -51,6 +51,11 @@ def get_parser():
                                action='store_true',
                                help='draw the facial landmarks on the frame')
     parser_webcam.set_defaults(func=predict_from_webcam)
+
+    # Subcommand for predicting video from file
+    parser_file = subparsers.add_parser('file', help='predict from file')
+    parser_file.add_argument('path', help='the video file to predict from')
+    parser_file.set_defaults(func=predict_from_video)
 
     return parser
 

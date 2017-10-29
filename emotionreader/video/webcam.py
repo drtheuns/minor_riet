@@ -7,7 +7,7 @@ import pickle
 import cv2
 import numpy as np
 
-from frames import FrameHandler
+from .frames import FrameHandler
 
 
 def record(filename, seconds, **kwargs):
@@ -26,14 +26,16 @@ def record(filename, seconds, **kwargs):
     Returns:
         frame_count (int): The amount of frames that were recorded.
     """
-    cap = cv2.VideoCapture(0)
-
     fourcc = kwargs.get('fourcc', ('X', 'V', 'I', 'D'))
     frame_size = kwargs.get('size', (640, 480))
-    fps = kwargs.get('fps', 15)
+    fps = kwargs.get('fps', 10)
     codec = cv2.cv.CV_FOURCC(*fourcc)
 
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, frame_size[0])
+    cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, frame_size[1])
     cap.set(cv2.cv.CV_CAP_PROP_FPS, fps)
+    cap.set(cv2.cv.CV_CAP_PROP_FOURCC, codec)
     out = cv2.VideoWriter(filename, codec, fps, frame_size)
 
     total_frames = int(fps * seconds)
@@ -53,6 +55,7 @@ def get_webcam_video(width, height):
     vc = cv2.VideoCapture(0)
     vc.set(3, width)
     vc.set(4, height)
+    print(vc.isOpened())
 
     while True:
         ret, frame = vc.read()
@@ -67,9 +70,10 @@ def predict_from_webcam(args):
     emotions = ['anger', 'contempt', 'disgust', 'fear',
                 'happy', 'neutral', 'sadness', 'surprise']
 
-    with open('models/trained_svm_model') as f:
+    with open('models/trained_svm_model', 'rb') as f:
         model = pickle.load(f)
 
+    print('kek')
     width, height = args.dimensions
     for frame in get_webcam_video(width, height):
         handler = FrameHandler(frame)
