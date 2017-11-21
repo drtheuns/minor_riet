@@ -1,4 +1,5 @@
 """Run the application with any command line arguments.
+self.statusBar().showMessage('Hello from statusbar')
 
 You can run multiple parts of the program in one go,
 and they will be executed in the proper sequence.
@@ -13,6 +14,7 @@ import emotionreader
 from emotionreader.misc import parse_actions
 from emotionreader.video import predict_from_webcam, predict_from_video
 from emotionreader.model import sort_ck, prepare_dataset, train_model
+from emotionreader.flask.app import run_webserver, initdb
 
 
 def get_parser():
@@ -30,7 +32,7 @@ def get_parser():
     # Subcommand for preparing the dataset.
     parser_dataset = subparsers.add_parser('prepare-dataset', help='prepare '
                                            'the dataset by detecting faces and'
-                                           'cutting them to size')
+                                           ' cutting them to size')
     parser_dataset.set_defaults(func=prepare_dataset)
 
     # Subcommand for training the model
@@ -55,7 +57,22 @@ def get_parser():
     # Subcommand for predicting video from file
     parser_file = subparsers.add_parser('file', help='predict from file')
     parser_file.add_argument('path', help='the video file to predict from')
+    parser_file.add_argument('-w', '--workers', dest='workers', default=4,
+                             type=int, help='the amount of workers processes'
+                             ' to start')
     parser_file.set_defaults(func=predict_from_video)
+
+    # Subcommand for starting the GUI
+    parser_gui = subparsers.add_parser('present',
+                                       help='Start application as GUI')
+    parser_gui.add_argument('-d', '--debug', dest='debug',
+                                       action='store_true',
+                                       help='start in debug mode')
+    parser_gui.set_defaults(func=run_webserver)
+
+    # Subcommand for database operations
+    parser_db = subparsers.add_parser('initdb', help='database operations')
+    parser_db.set_defaults(func=initdb)
 
     return parser
 

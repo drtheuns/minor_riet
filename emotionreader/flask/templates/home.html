@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block head %}
+{{ super() }}
+<title>Choose a session</title>
+{% endblock head %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div style="margin-top: 10%">
+            <div class="one-half column">
+                <h1>Choose a session</h1>
+            </div>
+            <div class="one-half column">
+                <a class="u-pull-right button" href="/session/create">Create new Session</a>
+            </div>
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Participants</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for session in sessions %}
+                    <tr>session.id</tr>
+                    <tr>session.user_count</tr>
+                    <tr>session.date_created</tr>
+                    <tr>session.description</tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block head %}
+{{ super() }}
+<title>Choose a session</title>
+{% endblock head %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div style="margin-top: 10%">
+            <h1>Create new session</h1>
+            <form action="/session/create" method="post">
+                <label for="description">Description</label>
+                <textarea class="u-full-width" placeholder="Description" id="description" name="description"></textarea>
+                <label for="user_count">Participants</label>
+                <input id="user_count" name="user_count" class="u-full-width" type="number" min="1" max="15"/>
+                <input class="button-primary" value="Submit" type="submit">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

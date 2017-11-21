@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<title>Emotions in Heritage</title>
+{% endblock head %}
+{% block content %}
+<div id="pagewrapper">
+    <!-- Page 1: Session Picker (homepage) -->
+    <div id="page_session_picker" class="uk-hidden">
+        <div class="uk-container uk-margin-medium-top">
+            <div class="uk-text-center">
+                <h1>Welcome to Emotions in Heritage</h1>
+                <p class="uk-text-lead">Please choose a session</p>
+            </div>
+            <div class="uk-divider-icon"></div>
+            <div class="uk-float-right">
+                <button class="uk-button uk-button-primary" id="btn-new-session">New session</button>
+            </div>
+            <table id="session-table" class="uk-table uk-table-divider uk-table-justify uk-table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Description</th>
+                        <th>People</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Page 2: Session Creator -->
+    <div id="page_session_creator" class="uk-hidden">
+        <div class="uk-container uk-margin-medium-top">
+            <div class="uk-text-center">
+                <h1>Create a new session</h1>
+            </div>
+            <div class="uk-divider-icon"></div>
+            <form id="form-new-session">
+                <fieldset class="uk-fieldset">
+                    <legend class="uk-legend">New Session</legend>
+                    <div class="uk-margin">
+                        <input class="uk-input" type="number" min="1" max="15" name="user_count" placeholder="People">
+                    </div>
+                    <div class="uk-margin">
+                        <textarea class="uk-textarea" name="description" rows="4" placeholder="Description"></textarea>
+                    </div>
+                </fieldset>
+                <fieldset class="uk-fieldset">
+                    <legend class="uk-legend">People</legend>
+                    <div class="uk-margin" id="form-people-div"></div>
+                </fieldset>
+            </form>
+            <div class="uk-display-inline-block uk-float-right uk-margin-medium-top">
+                <button id="btn-session-save" class="uk-button uk-button-primary" title="Save and return to session picker" uk-tooltip>Save</button>
+                <button id="btn-session-go" class="uk-button uk-button-primary" title="Save and start the newly created session" uk-tooltip>Save &amp; Start</button>
+                <button id="btn-session-cancel" class="uk-button uk-button-default">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3: Current session -->
+    <div id="page_session_viewer" class="uk-hidden">
+        <div class="uk-grid-collapse" uk-grid>
+            <div class="uk-width-1-1">
+                <div class="uk-grid-small uk-padding-small uk-box-shadow-small" uk-grid>
+                    <div class="uk-width-auto">
+                        <select id="select-video" class="uk-select"></select>
+                    </div>
+                    <div class="uk-width-auto">
+                        <button class="uk-button uk-button-primary">
+                            <span class="uk-margin-small-right" uk-icon="icon: play-circle"></span>
+                            Show Video
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-1-6"></div>
+            <div class="uk-width-5-6">
+                <canvas id="canvas">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

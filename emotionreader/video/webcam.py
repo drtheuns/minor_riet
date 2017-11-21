@@ -3,6 +3,8 @@ Maybe add all frames from the webcam in a buffer (queue) and
 read them all one by one.
 """
 import pickle
+import os
+import sys
 
 import cv2
 import numpy as np
@@ -51,6 +53,10 @@ def record(filename, seconds, **kwargs):
     return frame_count
 
 
+def record_to_file(session, video):
+    project_root = os.path.dirname(sys.modules['__main__'].__file__)
+
+
 def get_webcam_video(width, height):
     vc = cv2.VideoCapture(0)
     vc.set(3, width)
@@ -73,7 +79,6 @@ def predict_from_webcam(args):
     with open('models/trained_svm_model', 'rb') as f:
         model = pickle.load(f)
 
-    print('kek')
     width, height = args.dimensions
     for frame in get_webcam_video(width, height):
         handler = FrameHandler(frame)
