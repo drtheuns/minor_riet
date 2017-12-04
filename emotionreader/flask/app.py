@@ -1,3 +1,4 @@
+import logging
 from multiprocessing import Process
 
 from flask import (Flask, render_template, request, make_response, jsonify,
@@ -5,7 +6,8 @@ from flask import (Flask, render_template, request, make_response, jsonify,
 
 from . import models
 from . import schemas
-from emotionreader.video import record_to_file
+from emotionreader.video import record_to_file, predict_video
+from emotionreader.utils import average_emotions
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main.db'
@@ -36,6 +38,15 @@ def bad_request(error):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+
+@app.route('/session/<int:session_id>/video/<int:video_id>/')
+def show_video_in_session(session_id, video_id):
+    session = models.Session.query.get(session_id)
+    video = models.Video.query.get(video_id)
+    if not video or not session:
+        abort(404)
+    return render_template('video.html', session=session, video=video)
 
 
 @app.route('/api/sessions/', methods=['GET', 'PUT'])
@@ -101,21 +112,41 @@ def videos():
         return schemas.video_schema.jsonify(data)
 
 
-@app.route('/api/action/record/<int:session_id>/<int:video_id>/')
-def record(session_id, video_id):
+@app.route('/api/action/record/<int:session_id>/<int:video_id>/<int:user_id>/')
+def record(session_id, video_id, user_id):
     # needs to run in separate process, otherwise it might be locked by GIL
     session = models.Session.query.get(session_id)
     video = models.Video.query.get(video_id)
-    if not session or not video:
+    user = session.users.filter_by(id=user_id).one_or_none()
+    if not session or not video or not user:
         return make_response(jsonify({'error': 'session or video not found'}), 404)
 
-    p = Process(target=record_to_file, args=(session, video))
+    p = Process(target=record_and_process, args=(session, video, user))
     p.start()
+
     return jsonify({'message': 'started recording'})
 
 
+def record_and_process(session, video, user):
+    filepath = record_to_file(session, video, user)
+    predictions = predict_video(filepath, 4)
+    avg_predictions = average_emotions(predictions)
+
+    video_session = models.VideoSession(
+        session=session,
+        person=user,
+        video=video,
+        result=avg_predictions
+    )
+    db.session.add(video_session)
+    db.session.commit()
+
+
 def run_webserver(args):
-    app.run(host='127.0.0.1', port='5000', debug=args.debug)
+    app.run(host='127.0.0.1', port='5000')
+
+    if args.debug:
+        logging.basicConfig(filename="debug.log", level=logging.DEBUG)
 
 
 def initdb(args):

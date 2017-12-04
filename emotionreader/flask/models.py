@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+from .fields import SqliteJSON
 
 
 db = SQLAlchemy()
@@ -14,7 +15,7 @@ class Session(db.Model):
     user_count = db.Column(db.Integer)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
-    users = db.relationship('Person', back_populates='session')
+    users = db.relationship('Person', back_populates='session', lazy='dynamic')
     video_sessions = db.relationship('VideoSession', back_populates='session')
 
     def __repr__(self):
@@ -62,7 +63,7 @@ class VideoSession(db.Model):
     session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'))
     person_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     video_id = db.Column(db.Integer, db.ForeignKey('video.id'))
-    result = db.Column(db.LargeBinary)
+    result = db.Column(SqliteJSON)
 
     session = db.relationship('Session', back_populates='video_sessions')
     person = db.relationship('Person', back_populates='video_sessions')

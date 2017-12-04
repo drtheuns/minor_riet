@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 
 from .frames import FrameHandler
+from ..utils import average_emotions
 
 
 class Worker(mp.Process):
@@ -40,7 +41,6 @@ class Worker(mp.Process):
         from the frame, and move the result to the output queue.
         """
         for idx, frame in iter(self.input_queue.get, None):
-            print("handling frame: ", idx)
             handler = FrameHandler(frame)
             face = np.array(handler.get_vectorized_landmarks())
             if face is None:
@@ -48,7 +48,6 @@ class Worker(mp.Process):
             else:
                 self.output_queue.put((idx, face))
             self.input_queue.task_done()
-        print('closing process')
 
 
 def get_frames(path):
@@ -87,7 +86,10 @@ def predict_video(path, workers):
     # sort by the frame index
     s_items = sorted(queue_list, key=lambda x: x[0])
     landmarks = [x[1] for x in s_items]
+
     predictions = model.predict_proba(landmarks)
+    import json
+    print(json.dumps(predictions.tolist()))
     return predictions
 
 

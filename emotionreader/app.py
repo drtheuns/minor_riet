@@ -63,11 +63,11 @@ def get_parser():
     parser_file.set_defaults(func=predict_from_video)
 
     # Subcommand for starting the GUI
-    parser_gui = subparsers.add_parser('present',
-                                       help='Start application as GUI')
+    parser_gui = subparsers.add_parser('webserver',
+                                       help='Start the webserver')
     parser_gui.add_argument('-d', '--debug', dest='debug',
-                                       action='store_true',
-                                       help='start in debug mode')
+                            action='store_true',
+                            help='start in debug mode')
     parser_gui.set_defaults(func=run_webserver)
 
     # Subcommand for database operations

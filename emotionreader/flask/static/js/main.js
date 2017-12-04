@@ -12,7 +12,7 @@ let app = {
     pages: [],
     current_page: null,
     current_session: null,
-    current_video: -1,
+    current_video: null,
     get_page: function(x) {
         if (typeof x == 'number') {
             return this.pages[x];
@@ -50,6 +50,62 @@ let app = {
         }
     }
 };
+
+app.visualization = {
+    _emotions: ['anger', 'contempt', 'disgust', 'fear', 'happy',
+                'neutral', 'sadness', 'surprise'],
+    canvas_list: [],
+
+    /**
+     * Generate a chart from a set of emotions.
+     */
+    generateSingle: function(emotions) {
+        let div = document.createElement('div');
+        div.classList.add('chart-wrapper');
+        let canvas = document.createElement('canvas');
+        div.appendChild(canvas);
+
+        let chart = new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            },
+            data: {
+                datasets: [{
+                    data: emotions
+                }]
+            }
+        });
+        this.canvas_list.push(chart);
+
+        document.getElementById('canvas-area').appendChild(div);
+    },
+
+    /**
+     * Generate a single frame of charts.
+     *
+     * One frame is a list containing a list of emotions, in other words
+     * the emotions of a single moment in time for a group of people.
+     */
+    generateFrame: function(frame) {
+        document.getElementById('canvas-area').innerHTML = "";
+        frame.forEach((elem) => {
+            this.generateSingle(elem);
+        });
+
+        average = [];
+        for (let i = 0; i < frame.length; i++) {
+            for (let x = 0; i < i.length; x++) {
+                average[x] += i[x];
+            }
+        }
+        for (let i = 0; i < average.length; i++) {
+            average[i] = average[i] / average.length;
+        }
+        console.log(average);
+    },
+}
 
 app.pages.push({
     id: 'page_session_picker',
@@ -237,6 +293,22 @@ app.pages.push({
         $('#select-video').on('change', function() {
             app.current_video = $(this).val();
         });
+        $('#btn-show-video').on('click', function() {
+            if (app.current_video && app.current_session) {
+                let url = `/session/${app.current_session.id}/video/${app.current_video}`;
+                let win = window.open(url, '_blank');
+                if (win) {
+                    win.focus();
+                }
+            } else {
+                UIkit.notification({
+                    message: 'No video selected',
+                    status: 'warning',
+                    pos: 'top-right',
+                    timeout: 3000
+                });
+            }
+        });
     },
     show: function(args) {
         let reload = args.reload === false ? args.reload : true;
@@ -246,7 +318,7 @@ app.pages.push({
     hide: function() {
         document.getElementById(this.id).classList.add('uk-hidden');
     }
-})
+});
 
 $(document).ready(function() {
     if (window.location.hash.startsWith('#session')) {

@@ -1,8 +1,28 @@
 {% extends "layout.html" %}
 {% block head %}
 {{ super() }}
+<script src="{{ url_for('static', filename='js/lib/Chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <title>Emotions in Heritage</title>
+<style>
+    .height-wrapper {
+        margin: 0; min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    .height-top {
+        height: 70px;
+    }
+    .height-bottom {
+        flex: 1;
+    }
+    .chart-wrapper {
+        height: 200px;
+        width: 200px;
+        max-height: 200px;
+        max-width: 200px;
+    }
+</style>
 {% endblock head %}
 {% block content %}
 <div id="pagewrapper">
@@ -63,24 +83,25 @@
 
     <!-- Page 3: Current session -->
     <div id="page_session_viewer" class="uk-hidden">
-        <div class="uk-grid-collapse" uk-grid>
-            <div class="uk-width-1-1">
-                <div class="uk-grid-small uk-padding-small uk-box-shadow-small" uk-grid>
-                    <div class="uk-width-auto">
-                        <select id="select-video" class="uk-select"></select>
-                    </div>
-                    <div class="uk-width-auto">
-                        <button class="uk-button uk-button-primary">
-                            <span class="uk-margin-small-right" uk-icon="icon: play-circle"></span>
-                            Show Video
-                        </button>
+        <div class="height-wrapper" id="subpage">
+            <div class="height-top">
+                <div class="uk-grid-collapse" uk-grid>
+                    <div class="uk-width-1-1">
+                        <div class="uk-grid-small uk-padding-small uk-box-shadow-small" uk-grid>
+                            <div class="uk-width-auto">
+                                <select id="select-video" class="uk-select"></select>
+                            </div>
+                            <div class="uk-width-auto">
+                                <button id="btn-show-video" class="uk-button uk-button-primary">
+                                    <span class="uk-margin-small-right" uk-icon="icon: play-circle"></span>
+                                    Show Video
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="uk-width-1-6"></div>
-            <div class="uk-width-5-6">
-                <canvas id="canvas">
-            </div>
+            <div class="height-bottom" id="canvas-area"></div>
         </div>
     </div>
 </div>

@@ -2,8 +2,9 @@
 Maybe add all frames from the webcam in a buffer (queue) and
 read them all one by one.
 """
-import pickle
+import errno
 import os
+import pickle
 import sys
 
 import cv2
@@ -31,13 +32,13 @@ def record(filename, seconds, **kwargs):
     fourcc = kwargs.get('fourcc', ('X', 'V', 'I', 'D'))
     frame_size = kwargs.get('size', (640, 480))
     fps = kwargs.get('fps', 10)
-    codec = cv2.cv.CV_FOURCC(*fourcc)
+    codec = cv2.VideoWriter_fourcc(*fourcc)
 
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, frame_size[0])
-    cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, frame_size[1])
-    cap.set(cv2.cv.CV_CAP_PROP_FPS, fps)
-    cap.set(cv2.cv.CV_CAP_PROP_FOURCC, codec)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_size[0])
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_size[1])
+    cap.set(cv2.CAP_PROP_FPS, fps)
+    cap.set(cv2.CAP_PROP_FOURCC, codec)
     out = cv2.VideoWriter(filename, codec, fps, frame_size)
 
     total_frames = int(fps * seconds)
@@ -53,8 +54,29 @@ def record(filename, seconds, **kwargs):
     return frame_count
 
 
-def record_to_file(session, video):
-    project_root = os.path.dirname(sys.modules['__main__'].__file__)
+def ensure_directory(directory):
+    try:
+        os.makedirs(directory)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            print(e)
+            raise
+
+
+def record_to_file(session, video, user):
+    project_root = os.path.dirname(
+        os.path.dirname(sys.modules['__main__'].__file__))
+    filename = f'{user.id}_{user.name.replace(" ", "_")}.avi'
+    filepath = f'{project_root}/videos/{session.id}/{video.id}/{filename}'
+    print(filepath)
+    try:
+        ensure_directory(os.path.dirname(filepath))
+    except OSError:
+        # the directory could not be created.
+        return
+
+    record(filepath, video.length + 1)
+    return filepath
 
 
 def get_webcam_video(width, height):

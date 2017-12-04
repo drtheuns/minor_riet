@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/video.js') }}"></script>
+<style>
+    #user-select {
+        position: fixed;
+        top: 20px; left: 20px;
+        width: 20%;
+        background-color: #000;
+        color: #fff;
+    }
+    #btn-ready {
+        position: fixed;
+        top: 20px; left: 25%;
+        width: 8%;
+        background-color: #000;
+        color: #fff;
+        border: 1px solid #fff;
+    }
+    #video-wrapper {
+        position: fixed;
+        top: 10%; bottom: 10%;
+        left: 10%; right: 10%;
+    }
+    html {
+        background-color: #000;
+    }
+</style>
+{% endblock head %}
+{% block content %}
+<div id="pagewrapper">
+    <div>
+        <select id="user-select" class="uk-select">
+        {% for user in session.users %}
+            <option value="{{ user.id }}">{{ user.name }}</option>
+        {% endfor %}
+        </select>
+        <button class="uk-button" id="btn-ready">Ready</button>
+    </div>
+    <div id="video-wrapper" class="uk-inline">
+        <video id="video" width="100%" height="100%">
+            <source src="{{ video.path }}" type="video/webm" uk-cover/>
+        </video>
+        <!-- <div class="uk-overlay uk-overlay-default uk-position-center" id="control-overlay"> -->
+        <!--     <button class="uk-button uk-button-default" id="btn-play">Play</button> -->
+        <!-- </div> -->
+    </div>
+</div>
+<script>
+    let session_id = {{ session.id }};
+    let video_id = {{ video.id }};
+</script>
+{% endblock content %}
