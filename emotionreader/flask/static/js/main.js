@@ -69,12 +69,19 @@ app.visualization = {
             type: 'doughnut',
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                legend: {
+                    display: false
+                }
             },
             data: {
-                datasets: [{
-                    data: emotions
-                }]
+                labels: this._emotions,
+                datasets: [
+                    {
+                        data: emotions,
+                        backgroundColor: ['red', 'blue', 'green', 'orange', 'purple', 'brown', 'limegreen', 'black']
+                    }
+                ]
             }
         });
         this.canvas_list.push(chart);
@@ -103,8 +110,53 @@ app.visualization = {
         for (let i = 0; i < average.length; i++) {
             average[i] = average[i] / average.length;
         }
-        console.log(average);
     },
+
+    /**
+     * Returns the prediction of each video_session instance at a certain timeframe.
+     * Can be used to generate the frame of all available video sessions at a given
+     * timeframe.
+     *
+     * Example:
+     *     `getTimeFrame(10)` returns the predictions from each person at the 4.5 to 5 second mark.
+     *
+     * Arguments:
+     *     - index: the index of the frame to get.
+     */
+    getTimeFrame: function(index) {
+        let result = [];
+        this.data.forEach((elem) => {
+            result.push(elem.result[index]);
+        });
+        return result;
+    },
+
+    /**
+     * Generate the charts from the current session and video.
+     *
+     * Arguments:
+     *     - data: a list of `VideoSessions`
+     */
+    generateFromSession: function(data) {
+        if (!(data.length > 0)) {
+            UIkit.notification({
+                message: 'No data to show',
+                status: 'warning',
+                pos: 'top-right',
+                timeout: 3000
+            });
+            return;
+        }
+
+        this.data = data;
+        // The video is recorded at 10 FPS, and then the average of 5 frames is taken.
+        // Therefore, the amount of predictions in the result list should be `video_length * 2`
+        let length = data[0].result.length / 2;
+        document.getElementById('timeline').max = length;
+
+
+        this.generateFrame(this.getTimeFrame(1));
+    }
 }
 
 app.pages.push({
@@ -293,6 +345,17 @@ app.pages.push({
         $('#select-video').on('change', function() {
             app.current_video = $(this).val();
         });
+
+        $('#timeline').on('input', function() {
+            let val = parseFloat($(this).val());
+            $('#range-output').html(`${val} - ${val + 0.5}`);
+        });
+
+        $('#timeline').on('change', function() {
+            let index = parseFloat($(this).val()) * 2;
+            app.visualization.generateFrame(app.visualization.getTimeFrame(index));
+        });
+
         $('#btn-show-video').on('click', function() {
             if (app.current_video && app.current_session) {
                 let url = `/session/${app.current_session.id}/video/${app.current_video}`;
@@ -308,6 +371,10 @@ app.pages.push({
                     timeout: 3000
                 });
             }
+        });
+        $('#btn-gen-model').on('click', function() {
+            let url = `/api/session/${app.current_session.id}/video/${app.current_video}/video_sessions/`;
+            $.get(url).done((data) => { app.visualization.generateFromSession(data); });
         });
     },
     show: function(args) {

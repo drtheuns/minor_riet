@@ -88,6 +88,7 @@ def predict_video(path, workers):
     landmarks = [x[1] for x in s_items]
 
     predictions = model.predict_proba(landmarks)
+
     return predictions
 
 

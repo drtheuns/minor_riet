@@ -155,3 +155,5 @@ data/
 **.xml
 **.dat
 videos/
+**.db
+/emotionreader/flask/main.db
