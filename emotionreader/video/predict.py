@@ -85,11 +85,32 @@ def predict_video(path, workers):
 
     # sort by the frame index
     s_items = sorted(queue_list, key=lambda x: x[0])
-    landmarks = [x[1] for x in s_items]
+    landmarks = np.asarray([x[1] for x in s_items])
 
-    predictions = model.predict_proba(landmarks)
+    # Make sure no `None` valued arrays make it in, or the prediction will fail.
+    # Remember the position though, so we can reconstruct the array according to the
+    # video timeline
+    no_face_indexes = []
+    predictable_landmarks = []
+    for i, x in enumerate(landmarks):
+        if x.size < 264:
+            no_face_indexes.append(i)
+        else:
+            predictable_landmarks.append(x)
 
-    return predictions
+    predictions = model.predict_proba(predictable_landmarks)
+    print(len(predictions), len(landmarks))
+
+    result = []
+    for i, x in enumerate(predictions):
+        if i in no_face_indexes:
+            result.append(None)
+        else:
+            result.append(x)
+
+    print(result, len(result))
+
+    return result
 
 
 def predict_from_video(args):

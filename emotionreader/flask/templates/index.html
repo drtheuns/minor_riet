@@ -17,10 +17,18 @@
         flex: 1;
     }
     .chart-wrapper {
+        position: relative;
         height: 200px;
         width: 200px;
         max-height: 200px;
         max-width: 200px;
+    }
+    .chart-wrapper-avg {
+        position: relative;
+        height: 300px;
+        width: 300px;
+        max-height: 300px;
+        max-width: 300px;
     }
     .range-parent, .range-parent::after, .ranger-parent::before {
         box-sizing: border-box;
@@ -77,11 +85,30 @@
         background: $range-track-color;
         border: 0;
     }
-
     input::-moz-focus-inner,
     input::-moz-focus-outer { 
       border: 0; 
     }
+    .name-label {
+        position: absolute;
+        width: 100%;
+        margin-top: 40%;
+        color: black;
+        text-align: center;
+    }
+    .emotion-label {
+        padding: 5px;
+        border-radius: 3px;
+        color: white;
+    }
+    .anger { background-color: #DB162F; }
+    .contempt { background-color: #A4036F; }
+    .disgust { background-color: #702632; }
+    .fear { background-color: #7CB518; }
+    .happy { background-color: #FFFF00; color: black; }
+    .neutral { background-color: #33658A; }
+    .sadness { background-color: #03B5AA; }
+    .surprise { background-color: #FFB400; }
 </style>
 {% endblock head %}
 {% block content %}
@@ -152,15 +179,21 @@
                                 <select id="select-video" class="uk-select"></select>
                             </div>
                             <div class="uk-width-auto">
-                                <button id="btn-show-video" class="uk-button uk-button-default">
-                                    <span class="uk-margin-small-right" uk-icon="icon: play-circle"></span>
-                                    Show Video
+                                <button id="btn-show-video" class="uk-button uk-button-default" title="Show the selected video" uk-tooltip>
+                                    <span uk-icon="icon: play-circle"></span>
+                                    Show
                                 </button>
                             </div>
                             <div class="uk-width-auto">
-                                <button class="uk-button uk-button-primary" id="btn-gen-model">
-                                    <span class="uk-margin-small-right" uk-icon="icon: bolt"></span>
-                                    Generate Model
+                                <button class="uk-button uk-button-primary" id="btn-gen-model" title="Generate the emotion model" uk-tooltip>
+                                    <span uk-icon="icon: bolt"></span>
+                                    Create
+                                </button>
+                            </div>
+                            <div class="uk-width-auto">
+                                <button class="uk-button uk-button-primary" id="btn-show-names" title="Show the names" uk-tooltip>
+                                    <span uk-icon="icon: users"></span>
+                                    Names
                                 </button>
                             </div>
                             <div class="uk-width-expand range-parent">
@@ -169,6 +202,16 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="uk-width-1-1 uk-text-center uk-margin-small-top">
+                    <span class="uk-text-center emotion-label anger">Anger</span>
+                    <span class="uk-text-center emotion-label contempt">Contempt</span>
+                    <span class="uk-text-center emotion-label disgust">Disgust</span>
+                    <span class="uk-text-center emotion-label fear">Fear</span>
+                    <span class="uk-text-center emotion-label happy">Happy</span>
+                    <span class="uk-text-center emotion-label neutral">Neutral</span>
+                    <span class="uk-text-center emotion-label sadness">Sadness</span>
+                    <span class="uk-text-center emotion-label surprise">Surprise</span>
                 </div>
             </div>
             <div class="height-bottom" id="canvas-area"></div>

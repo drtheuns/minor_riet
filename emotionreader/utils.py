@@ -24,11 +24,18 @@ def average_emotions(iterable, chunk_size=5):
 
     result = []
     for frame_chunk in chunks(iterable, chunk_size):
+        divnum = chunk_size
         # there are 8 emotions. Without filling them like this
         # we would get index out of range in avg[i] = emotion
         avg = [0 for x in range(8)]
         for prediction in frame_chunk:
+            if prediction is None:
+                divnum -= 1
+                continue
             for i, emotion in enumerate(prediction):
                 avg[i] += emotion
-        result.append([x / chunk_size for x in avg])
+        if divnum == 0:
+            result.append(None)
+        else:
+            result.append([x / divnum for x in avg])
     return result

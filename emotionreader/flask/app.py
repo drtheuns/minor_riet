@@ -132,13 +132,22 @@ def record_and_process(session, video, user):
     predictions = predict_video(filepath, 4)
     avg_predictions = average_emotions(predictions)
 
-    video_session = models.VideoSession(
-        session=session,
-        person=user,
-        video=video,
-        result=avg_predictions
-    )
-    db.session.add(video_session)
+    existing = db.session.query(models.VideoSession).filter_by(
+        session=session, video=video, person=user
+    ).scalar()
+
+    if existing is None:
+        video_session = models.VideoSession(
+            session=session,
+            person=user,
+            video=video,
+            result=avg_predictions
+        )
+        db.session.add(video_session)
+    else:
+        existing.result = avg_predictions
+        db.session.add(existing)
+
     db.session.commit()
 
 

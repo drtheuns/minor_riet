@@ -48,6 +48,11 @@ let app = {
             this.current_session = session;
             this.show(2);
         }
+    },
+    getPersonById: function(id) {
+        return app.current_session.users.find(function(elem) {
+            return elem.id == id;
+        });
     }
 };
 
@@ -55,16 +60,37 @@ app.visualization = {
     _emotions: ['anger', 'contempt', 'disgust', 'fear', 'happy',
                 'neutral', 'sadness', 'surprise'],
     canvas_list: [],
+    name_hidden: true,
 
     /**
      * Generate a chart from a set of emotions.
      */
-    generateSingle: function(emotions) {
+    generateSingle: function(emotions, person, avg = false) {
+        if (!emotions) return;
+
+        // div.chart-wrapper>span.uk-hidden+canvas
         let div = document.createElement('div');
-        div.classList.add('chart-wrapper');
+        if (avg) {
+            div.classList.add('chart-wrapper-avg');
+        } else {
+            div.classList.add('chart-wrapper');
+        }
+
+        let name_label = document.createElement('span');
+        if (this.name_hidden) {
+            name_label.classList.add('uk-hidden', 'name-label');
+        } else {
+            name_label.classList.add('name-label');
+        }
+        name_label.innerHTML = person.name;
+        div.appendChild(name_label);
+
         let canvas = document.createElement('canvas');
         div.appendChild(canvas);
 
+        let data = emotions.map((elem) => {
+            return (elem * 100).toFixed(2);
+        });
         let chart = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
             options: {
@@ -78,8 +104,9 @@ app.visualization = {
                 labels: this._emotions,
                 datasets: [
                     {
-                        data: emotions,
-                        backgroundColor: ['red', 'blue', 'green', 'orange', 'purple', 'brown', 'limegreen', 'black']
+                        data: data,
+                        // Color labels:   Anger      Contempt   Disgust    Fear       Happy      Neutral    Sadness    Surprise
+                        backgroundColor: ['#DB162F', '#A4036F', '#702632', '#7CB518', '#FFFF00', '#33658A', '#03B5AA', '#FFB400']
                     }
                 ]
             }
@@ -87,6 +114,33 @@ app.visualization = {
         this.canvas_list.push(chart);
 
         document.getElementById('canvas-area').appendChild(div);
+        return div;
+    },
+
+    _getChartDistance: function(minimum = 280) {
+        let dist = window.innerHeight - 670;
+        if (dist < minimum) return minimum;
+        return dist;
+    },
+
+    /**
+     * Calculate the coordinates from the center of the div
+     * to 200 pixels from the border.
+     */
+    _calculateCoordinates: function(len, x1, y1, degrees) {
+        let rad = degrees * Math.PI / 180;
+        x2 = x1 + Math.cos(rad) * len;
+        y2 = y1 + Math.sin(rad) * len;
+        return {x: x2, y: y2};
+    },
+
+    _placeDivAtCoordinates: function(div, coords) {
+        let x = coords.x - (div.offsetWidth / 2);
+        // the 70 is the pixel height of the top bar
+        let y = (coords.y - (div.offsetHeight / 2)) + 70;
+        div.style.position = "absolute";
+        div.style.top = `${y}px`;
+        div.style.left = `${x}px`;
     },
 
     /**
@@ -96,20 +150,32 @@ app.visualization = {
      * the emotions of a single moment in time for a group of people.
      */
     generateFrame: function(frame) {
-        document.getElementById('canvas-area').innerHTML = "";
-        frame.forEach((elem) => {
-            this.generateSingle(elem);
+        this.clear_visual();
+
+        let container = document.getElementById('canvas-area');
+        let x_center = container.offsetWidth / 2,
+            y_center = container.offsetHeight / 2,
+            distance = this._getChartDistance(50),
+            degrees = 0;
+
+        let divs = frame.map((elem, index) => { 
+            return this.generateSingle(elem, app.getPersonById(this.data[index].person));
         });
 
-        average = [];
+        let step = 360 / divs.length;
+        for (let i = 0; i < divs.length; i++) {
+            this._placeDivAtCoordinates(divs[i], this._calculateCoordinates(distance, x_center, y_center, degrees));
+            degrees += step;
+        }
+
+        let average = new Array(8).fill(0);
         for (let i = 0; i < frame.length; i++) {
-            for (let x = 0; i < i.length; x++) {
-                average[x] += i[x];
+            for (let x = 0; x < frame[i].length; x++) {
+                average[x] += frame[i][x];
             }
         }
-        for (let i = 0; i < average.length; i++) {
-            average[i] = average[i] / average.length;
-        }
+        let avg_div = this.generateSingle(average, {name: 'Average'}, true);
+        this._placeDivAtCoordinates(avg_div, {x: x_center, y: y_center});
     },
 
     /**
@@ -152,10 +218,26 @@ app.visualization = {
         // The video is recorded at 10 FPS, and then the average of 5 frames is taken.
         // Therefore, the amount of predictions in the result list should be `video_length * 2`
         let length = data[0].result.length / 2;
-        document.getElementById('timeline').max = length;
-
+        // the 0th element also counts, so we have to do -0.5 otherwise there would be length+1 elements
+        document.getElementById('timeline').max = length - 0.5;
 
         this.generateFrame(this.getTimeFrame(1));
+    },
+
+    clear: function() {
+        this.data = null;
+        document.getElementById('timeline').max = 0;
+        this.clear_visual();
+    },
+    clear_visual: function() {
+        this.canvas_list = [];
+        document.getElementById('canvas-area').innerHTML = "";
+    },
+    toggleNames: function() {
+        document.querySelectorAll('span.name-label').forEach((elem) => {
+            elem.classList.toggle('uk-hidden');
+        });
+        app.visualization.name_hidden = !app.visualization.name_hidden;
     }
 }
 
@@ -373,9 +455,15 @@ app.pages.push({
             }
         });
         $('#btn-gen-model').on('click', function() {
+            if (app.current_video === "-1") {
+                app.visualization.clear();
+                return;
+            }
             let url = `/api/session/${app.current_session.id}/video/${app.current_video}/video_sessions/`;
             $.get(url).done((data) => { app.visualization.generateFromSession(data); });
         });
+
+        $('#btn-show-names').click(app.visualization.toggleNames);
     },
     show: function(args) {
         let reload = args.reload === false ? args.reload : true;
