@@ -99,7 +99,6 @@ def predict_video(path, workers):
             predictable_landmarks.append(x)
 
     predictions = model.predict_proba(predictable_landmarks)
-    print(len(predictions), len(landmarks))
 
     result = []
     for i, x in enumerate(predictions):
@@ -107,8 +106,6 @@ def predict_video(path, workers):
             result.append(None)
         else:
             result.append(x)
-
-    print(result, len(result))
 
     return result
 
