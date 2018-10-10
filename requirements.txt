@@ -1,6 +1,6 @@
 click==6.7
 dlib==19.7.0
-Flask==0.12.2
+flask ~> 0.12.3
 flask-marshmallow==0.8.0
 Flask-SQLAlchemy==2.3.2
 itsdangerous==0.24
